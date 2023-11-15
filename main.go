@@ -35,7 +35,7 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// Routes
-	e.GET("/process", process)
+	e.POST("/process", process)
 
 	// Start server
 	e.Logger.Fatal(e.Start("0.0.0.0:1323"))
