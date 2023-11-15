@@ -60,7 +60,7 @@ func process(c echo.Context) error {
 	}
 
 	err := ns.PublishMsg(&nats2.Msg{
-		Subject: *config.FlagShardPrefix + ":" + shardID,
+		Subject: *config.FlagShardPrefix + "." + shardID,
 		Header: map[string][]string{
 			nats2.MsgIdHdr:       {msgID},
 			"X-Block-Hash":       {blockHashAsHex},
@@ -80,7 +80,7 @@ func process(c echo.Context) error {
 		"block_hash":       blockHashAsHex,
 		"msg_id":           msgID,
 		"received_at":      receivedAt.String(),
-		"subject":          *config.FlagShardPrefix + ":" + shardID,
+		"subject":          *config.FlagShardPrefix + "." + shardID,
 	}).Infof(
 		"Published a message with %s header of %s. Block hash is %s. Time when request came: %s. Time spent working: %s.",
 		nats2.MsgIdHdr, msgID, blockHashAsHex, receivedAt.String(), time.Since(receivedAt).String(),
