@@ -66,6 +66,7 @@ func process(c echo.Context) error {
 			"X-Block-Hash":       {blockHashAsHex},
 			"X-Previous-Hash-Id": {previousHashID},
 			"X-Shard-Id":         {shardID},
+			"X-Received-At":      {time.Now().String()},
 		},
 		Data: blob,
 	})
