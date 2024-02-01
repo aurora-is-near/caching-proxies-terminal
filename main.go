@@ -6,6 +6,7 @@ import (
 	"flag"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"caching-proxies-terminal/config"
@@ -42,6 +43,29 @@ func main() {
 }
 
 func process(c echo.Context) error {
+	authorizationHeader := c.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return c.String(403, "Forbidden for the provided authorization token")
+	}
+
+	splitAuthorizationHeader := strings.Split(authorizationHeader, " ")
+	if len(splitAuthorizationHeader) != 2 {
+		return c.String(403, "Forbidden for the provided authorization token")
+	}
+
+	if splitAuthorizationHeader[0] != "Bearer" {
+		return c.String(403, "Forbidden for the provided authorization token")
+	}
+
+	bearer := splitAuthorizationHeader[1]
+	jwt, err := Verify(bearer)
+	if err != nil {
+		logrus.Error(err)
+		return c.String(403, "Forbidden for the provided authorization token")
+	}
+
+	logrus.Info("Active jwt for the request is: ", jwt)
+
 	receivedAt := time.Now()
 	previousHashID := c.QueryParam("previous_hash_id")
 	shardID := c.QueryParam("shard_id")
@@ -59,7 +83,7 @@ func process(c echo.Context) error {
 		msgID = previousHashID + ":" + shardID
 	}
 
-	err := ns.PublishMsg(&nats2.Msg{
+	err = ns.PublishMsg(&nats2.Msg{
 		Subject: *config.FlagShardPrefix + "." + shardID,
 		Header: map[string][]string{
 			nats2.MsgIdHdr:       {msgID},
