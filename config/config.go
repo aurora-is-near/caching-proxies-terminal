@@ -8,5 +8,5 @@ var (
 	FlagServer                  = flag.String("server", "", "NATS server to connect to")
 	FlagCreds                   = flag.String("creds", "", "NATS credentials file")
 	FlagShardPrefix             = flag.String("shard-prefix", "", "Prefix for shard subjects")
-	FlagSubmissionsVerifierHost = flag.String("submissions-verifier-host", "", "Submissions verifier host, from where JWT tokens to authorize in NATS will come. Format must be http://host:port/")
+	FlagSubmissionsVerifierHost = flag.String("submissions-verifier-host", "", "Submissions verifier host, from where JWT tokens to authorize in NATS will come. Format must be http://host:port/authenticate")
 )

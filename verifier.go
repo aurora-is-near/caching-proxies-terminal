@@ -43,8 +43,8 @@ func Verify(bearerToken string) (string, error) {
 	answer := map[string]interface{}{}
 	err = json.Unmarshal(body, &answer)
 
-	status := answer["status"].(string)
-	if status != "ok" {
+	status, ok := answer["status"].(string)
+	if status != "ok" || !ok {
 		return "", errors.New("status from submissions verifier is not ok")
 	}
 
