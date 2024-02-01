@@ -24,9 +24,6 @@ func main() {
 		PrettyPrint: true,
 	})
 
-	// Initialize nats connection
-	nats.Get()
-
 	// Echo instance
 	e := echo.New()
 	e.HideBanner = true
@@ -71,7 +68,13 @@ func process(c echo.Context) error {
 	shardID := c.QueryParam("shard_id")
 	blob, _ := io.ReadAll(c.Request().Body)
 
-	ns := nats.Get()
+	ns, err := nats.GetForJWT(jwt)
+	if err != nil {
+		logrus.Error(err)
+		return c.String(403, "Forbidden: NATS forbid the connection")
+	}
+	defer ns.Drain()
+	defer ns.Close()
 
 	blockHash := sha256.New().Sum(blob)
 	blockHashAsHex := hex.EncodeToString(blockHash)

@@ -2,27 +2,25 @@ package connection
 
 import (
 	"fmt"
+	"os"
 
-	"github.com/nats-io/jsm.go/natscontext"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 )
 
-func Establish(context string, overrideServer string, overrideCreds string) (*nats.Conn, jetstream.JetStream, error) {
-	var options = []natscontext.Option{}
-	if overrideCreds != "" {
-		options = append(options, natscontext.WithCreds(overrideCreds))
+func Establish(context string, overrideServer string, jwtCreds string) (*nats.Conn, jetstream.JetStream, error) {
+	tmpFile, err := os.CreateTemp("/tmp/", "nats")
+	if err != nil {
+		return nil, nil, err
 	}
-	if overrideServer != "" {
-		options = append(options, natscontext.WithServerURL(overrideServer))
-	}
+	defer os.Remove(tmpFile.Name())
 
-	ctx, err := natscontext.New(context, true, options...)
+	_, err = tmpFile.WriteString(jwtCreds)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	ns, err := ctx.Connect()
+	ns, err := nats.Connect(overrideServer, nats.UserCredentials(tmpFile.Name()))
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to connect to nats: %w", err)
 	}
