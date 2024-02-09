@@ -8,7 +8,7 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 )
 
-func Establish(context string, overrideServer string, jwtCreds string) (*nats.Conn, jetstream.JetStream, error) {
+func Establish(overrideServer string, jwtCreds string) (*nats.Conn, jetstream.JetStream, error) {
 	tmpFile, err := os.CreateTemp("/tmp/", "nats")
 	if err != nil {
 		return nil, nil, err

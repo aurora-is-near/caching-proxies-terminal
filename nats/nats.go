@@ -8,7 +8,7 @@ import (
 )
 
 func GetForJWT(jwtToken string) (*nats.Conn, error) {
-	ns, _, err := connection.Establish(*config.FlagNatsContext, *config.FlagServer, jwtToken)
+	ns, _, err := connection.Establish(*config.FlagServer, jwtToken)
 	if err != nil {
 		return nil, err
 	}
