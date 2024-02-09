@@ -39,13 +39,8 @@ The service offers several configuration options, which are set using command-li
   ```bash
   ./caching-proxies-terminal -use-blob-hash=true
   ```
-
-- **`-nats`** (string): Specifies the NATS context to use.
-  ```bash
-  ./caching-proxies-terminal -nats=[context]
-  ```
-
-- **`-server`** (string): Sets the NATS server URL to connect to, overrides the context setting.
+  
+- **`-server`** (string): Sets the NATS server URL to connect to.
   ```bash
   ./caching-proxies-terminal -server=[server_address]
   ```
@@ -66,7 +61,7 @@ The service offers several configuration options, which are set using command-li
 
 - To run with custom NATS context and shard prefix:
   ```bash
-  ./caching-proxies-terminal -nats [context] -shard-prefix [prefix] -submissions-verifier-host [verifier_host]
+  ./caching-proxies-terminal -shard-prefix [prefix] -submissions-verifier-host [verifier_host]
   ```
 - Use the `-use-blob-hash=true` flag for unique MsgID generation based on blob hash.
 
