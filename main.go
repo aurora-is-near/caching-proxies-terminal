@@ -6,7 +6,6 @@ import (
 	"flag"
 	"io"
 	"net/http"
-	"strings"
 	"time"
 
 	"caching-proxies-terminal/config"
@@ -40,21 +39,12 @@ func main() {
 }
 
 func process(c echo.Context) error {
-	authorizationHeader := c.Request().Header.Get("Authorization")
-	if authorizationHeader == "" {
+	authorizationToken := c.QueryParam("token")
+	if authorizationToken == "" {
 		return c.String(403, "Forbidden for the provided authorization token")
 	}
 
-	splitAuthorizationHeader := strings.Split(authorizationHeader, " ")
-	if len(splitAuthorizationHeader) != 2 {
-		return c.String(403, "Forbidden for the provided authorization token")
-	}
-
-	if splitAuthorizationHeader[0] != "Bearer" {
-		return c.String(403, "Forbidden for the provided authorization token")
-	}
-
-	bearer := splitAuthorizationHeader[1]
+	bearer := authorizationToken
 	jwt, err := Verify(bearer)
 	if err != nil {
 		logrus.Error(err)
