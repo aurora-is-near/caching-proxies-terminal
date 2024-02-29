@@ -54,7 +54,7 @@ func process(c echo.Context) error {
 	logrus.Info("Active jwt for the request is: ", jwt)
 
 	receivedAt := time.Now()
-	previousHashID := c.QueryParam("previous_hash_id")
+	previousHashID := c.QueryParam("prev_hash")
 	shardID := c.QueryParam("shard_id")
 	blob, _ := io.ReadAll(c.Request().Body)
 
