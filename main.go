@@ -66,7 +66,9 @@ func process(c echo.Context) error {
 	defer ns.Drain()
 	defer ns.Close()
 
-	blockHash := sha256.New().Sum(blob)
+	blockHasher := sha256.New()
+	blockHasher.Write(blob)
+	blockHash := blockHasher.Sum(nil)
 	blockHashAsHex := hex.EncodeToString(blockHash)
 
 	var msgID string
