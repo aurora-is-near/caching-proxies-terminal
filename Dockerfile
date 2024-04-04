@@ -1,11 +1,9 @@
-FROM golang:latest
+FROM alpine:latest
 
-LABEL version="1.0"
+WORKDIR /app
 
-RUN mkdir /go/src/caching-proxies-terminal
-COPY . /go/src/caching-proxies-terminal
-WORKDIR /go/src/caching-proxies-terminal
+# Copy the Pre-built binary file from the previous stage
+COPY . .
 
-RUN go mod tidy
-
-ENTRYPOINT ["./entrypoint.sh"]
+# Ensure the binary is executable
+RUN chmod +x /app/app
