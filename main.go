@@ -1,6 +1,7 @@
 package main
 
 import (
+	"caching-proxies-terminal/storage"
 	"crypto/sha256"
 	"encoding/hex"
 	"flag"
@@ -17,11 +18,23 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var strg storage.JwtStorage
+
 func main() {
 	flag.Parse()
 	logrus.SetFormatter(&logrus.JSONFormatter{
 		PrettyPrint: true,
 	})
+
+	if *config.FlagStoragePath != "" {
+		bdg, err := storage.NewBadgerStorage(*config.FlagStoragePath)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+		strg = bdg
+	} else {
+		strg = storage.NewMemoryStorage()
+	}
 
 	// Echo instance
 	e := echo.New()
@@ -45,7 +58,8 @@ func process(c echo.Context) error {
 	}
 
 	bearer := authorizationToken
-	jwt, err := Verify(bearer)
+
+	jwt, err := Verify(strg, bearer)
 	if err != nil {
 		logrus.Error(err)
 		return c.String(403, "Forbidden for the provided authorization token")

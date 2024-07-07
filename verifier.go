@@ -2,16 +2,44 @@ package main
 
 import (
 	"caching-proxies-terminal/config"
+	"caching-proxies-terminal/storage"
 	"encoding/json"
 	"errors"
+	"github.com/nats-io/jwt/v2"
+	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
 // Verify asks the submissions verifier service to verify the token and return the JWT to connect to NATS
-func Verify(bearerToken string) (string, error) {
+func Verify(storage storage.JwtStorage, bearerToken string) (string, error) {
+	// Try to get the JWT from the storage
+	token, err := storage.Get(bearerToken)
+	if err == nil {
+		// Check for its expiration time
+		tokenRows := strings.Split(token, "\n")
+		if len(tokenRows) < 2 {
+			logrus.Warn("Cached JWT has wrong format: ", token)
+			return "", errors.New("cached JWT has wrong format")
+		}
+
+		tokenString := tokenRows[1]
+
+		claims, err := jwt.DecodeUserClaims(tokenString)
+		if err != nil {
+			logrus.Warn("Could not decode claims from cached JWT: ", token)
+		} else if claims.Expires > time.Now().Unix() {
+			return token, nil
+		} else {
+			logrus.Warn("Cached JWT has expired: ", token)
+		}
+	} else {
+		logrus.Warn("Could not get JWT from cache: ", err)
+	}
+
 	httpClient := http.Client{
 		Timeout: 5 * time.Second,
 	}
@@ -48,7 +76,12 @@ func Verify(bearerToken string) (string, error) {
 		return "", errors.New("status from submissions verifier is not ok")
 	}
 
-	jwt := answer["jwt"].(string)
+	token = answer["jwt"].(string)
+	err = storage.Store(bearerToken, token)
+	if err != nil {
+		logrus.Warning("Could not store JWT in cache: ", err)
+		return "", err
+	}
 
-	return jwt, nil
+	return token, nil
 }
