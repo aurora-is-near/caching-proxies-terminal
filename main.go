@@ -48,12 +48,14 @@ func main() {
 	e.POST("/process", process)
 
 	// Start server
+	logrus.Info("Starting the server on 0.0.0.0:1323")
 	e.Logger.Fatal(e.Start("0.0.0.0:1323"))
 }
 
 func process(c echo.Context) error {
 	authorizationToken := c.QueryParam("token")
 	if authorizationToken == "" {
+		logrus.Error("No authorization token provided")
 		return c.String(403, "Forbidden for the provided authorization token")
 	}
 
