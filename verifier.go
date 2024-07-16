@@ -31,7 +31,7 @@ func Verify(storage storage.JwtStorage, bearerToken string) (string, error) {
 		claims, err := jwt.DecodeUserClaims(tokenString)
 		if err != nil {
 			logrus.Warn("Could not decode claims from cached JWT: ", token)
-		} else if claims.Expires > time.Now().Unix() {
+		} else if claims.Expires > time.Now().Add(10*time.Second).Unix() {
 			return token, nil
 		} else {
 			logrus.Warn("Cached JWT has expired: ", token)
